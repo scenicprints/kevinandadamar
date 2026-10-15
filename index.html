@@ -1017,7 +1017,7 @@ section{ position: relative; scroll-margin-top: 76px }
   // Codes and seat counts live in the Invitations tab of the spreadsheet, and
   // answers are written to the Replies tab. The POST goes out as plain text on
   // purpose: Apps Script does not answer CORS preflight requests.
-  var ENDPOINT = '__RSVP_ENDPOINT__';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbw91HENYaU5mt6ONWI0mulqcANTRadGWukSuTtx2l4B8esgr2EZHB0fd_uhtkLmqgCkdA/exec';
 
   function lookupCode(code){
     return fetch(ENDPOINT + '?code=' + encodeURIComponent(code), { method: 'GET' })
