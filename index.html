@@ -184,6 +184,18 @@ section{ position: relative; scroll-margin-top: 76px }
 @media (prefers-reduced-motion: reduce){ .music[aria-pressed="true"] .bars i{ animation:none; height:70% } }
 @media (max-width: 560px){ .music .lbl{ display:none } .music{ padding:12px 14px } }
 
+/* Shown only when the browser refused to start the song by itself, so the
+   guest knows the music is there and one tap away. Removed the moment it plays. */
+.music.needs-tap{ border-color: rgba(142,138,230,.6); color: var(--bone) }
+.music.needs-tap .lbl{ display:inline !important }
+@media (prefers-reduced-motion: no-preference){
+  .music.needs-tap{ animation: tapPulse 2.8s ease-in-out infinite }
+}
+@keyframes tapPulse{
+  0%,100%{ box-shadow: 0 0 0 0 rgba(142,138,230,0) }
+  50%{ box-shadow: 0 0 0 8px rgba(142,138,230,.13) }
+}
+
 /* ── hero ──────────────────────────────────────────────────── */
 
 .hero{
@@ -1011,6 +1023,7 @@ section{ position: relative; scroll-margin-top: 76px }
 
   function setOn(on){
     playing = on;
+    if (on) musicBtn.classList.remove('needs-tap');
     musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     musicLbl.textContent = on ? 'Music on' : 'Play music';
   }
@@ -1057,7 +1070,14 @@ section{ position: relative; scroll-margin-top: 76px }
   // page if the browser refuses to start it unprompted.
   var AUTOSTART = true;
   if (AUTOSTART && !reduce){
-    playTrack().then(function(ok){ if (!ok) arm() });
+    playTrack().then(function(ok){
+      if (ok) return;
+      arm();
+      // Nothing can start audio before the guest touches the page, so say so
+      // rather than leaving them to wonder why it is silent.
+      musicBtn.classList.add('needs-tap');
+      musicLbl.textContent = 'Tap for music';
+    });
     // a second unprompted attempt once the file is genuinely ready; the first
     // one can fail simply because nothing has loaded yet
     audio.addEventListener('canplaythrough', function once(){
