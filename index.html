@@ -1162,6 +1162,22 @@ section{ position: relative; scroll-margin-top: 76px }
     GESTURES.forEach(function(n){ window.removeEventListener(n, onFirstGesture, true) });
   }
 
+  // Audio keeps running when the page is backgrounded, so leaving the site or
+  // locking the phone would carry the song away with you. Stop on the way out
+  // and pick it up again on the way back, unless it was deliberately silenced.
+  var pausedByHide = false;
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden){
+      if (!audio.paused){ pausedByHide = true; audio.pause() }
+      return;
+    }
+    if (!pausedByHide) return;
+    pausedByHide = false;
+    if (userChoseSilence) return;
+    var p = audio.play();
+    if (p && p.then) p.then(function(){ setOn(true) }).catch(function(){ setOn(false) });
+  });
+
   musicBtn.addEventListener('click', function(){
     if (playing){
       userChoseSilence = true;
