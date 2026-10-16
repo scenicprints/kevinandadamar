@@ -400,6 +400,28 @@ section{ position: relative; scroll-margin-top: 76px }
 
 /* A popup laid over the whole page. It is moved one-for-one with the scroll,
    so it behaves like a sheet resting on the page and slides off the top. */
+/* The code is asked for once, on arrival. Entering it is also the tap that
+   lets the browser start the song. */
+.gatepop{ position:fixed; inset:0; z-index:58; display:grid; place-items:center; padding: var(--gutter) }
+.gatepop[hidden]{ display:none }
+.gatepop-scrim{ position:absolute; inset:0; background: rgba(16,16,22,.84); backdrop-filter: blur(9px) }
+.gatepop-card{
+  position:relative; z-index:1; width:min(460px,100%);
+  border:1px solid rgba(142,138,230,.36);
+  background: linear-gradient(rgba(30,27,66,.98), rgba(26,26,36,.98));
+  box-shadow: 0 44px 110px rgba(0,0,0,.72);
+  padding: clamp(1.8rem,5.5vw,2.6rem);
+  display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;
+}
+.gatepop-card h3{ font-size: clamp(1.4rem,4.6vw,2rem); line-height:1.14 }
+.gatepop-card p{ color: var(--bone-dim) }
+.gatepop-card .code-field{ margin-top:4px }
+.linky{
+  font-size: var(--t-xs); letter-spacing:.16em; text-transform:uppercase;
+  color: var(--bone-dim); text-decoration:underline; text-underline-offset:5px; padding:8px 4px;
+}
+.linky:hover{ color: var(--bone) }
+
 .pop{
   position: fixed; inset: 0; z-index: 57;
   display: grid; place-items: center;
@@ -433,6 +455,16 @@ section{ position: relative; scroll-margin-top: 76px }
   .pop-card .cue i{ animation: cueSlide 2.2s var(--ease) infinite }
 }
 @keyframes cueSlide{ 0%{ transform: translateX(-8px); opacity:.3 } 50%{ transform:none; opacity:1 } 100%{ transform: translateX(8px); opacity:.3 } }
+
+.brief-inline{
+  border:1px solid rgba(142,138,230,.3); background: rgba(0,103,198,.0);
+  background-color: rgba(142,138,230,.07);
+  padding: clamp(1.2rem,3.4vw,1.7rem); margin-bottom: 4px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.brief-inline[hidden]{ display:none }
+.brief-inline h3{ font-size: var(--t-lg); line-height:1.18 }
+.brief-inline p{ color: var(--bone-dim) }
 
 .step{ padding-block: 26px; border-top:1px solid var(--line-soft) }
 .step > .eyebrow{ margin-bottom:18px }
@@ -715,7 +747,7 @@ section{ position: relative; scroll-margin-top: 76px }
   <div class="wrap rsvp-inner">
     <p class="eyebrow r">Reply</p>
     <h2 class="r" style="--d:.06s">Will you <em>be there</em>?</h2>
-    <p class="lede r" style="--d:.12s; text-align:center">Your invitation has a six character code on it. Enter it and we will pull up your seats.</p>
+    <p class="lede r" id="rsvpLede" style="--d:.12s; text-align:center">Your invitation has a six character code on it. Enter it and we will pull up your seats.</p>
 
     <div class="panel r" id="stageGate" style="--d:.18s">
       <div class="gate">
@@ -733,6 +765,12 @@ section{ position: relative; scroll-margin-top: 76px }
       <div class="party-head">
         <h3 id="partyName">Your invitation</h3>
         <span class="seats" id="partySeats">0 seats held</span>
+      </div>
+
+      <div class="brief-inline" id="inlineNote" hidden>
+        <p class="eyebrow">Before you answer</p>
+        <h3>The ceremony runs about three hours.</h3>
+        <p>Several couples are being married at the same service, so it is a long one. We do not expect anyone to sit through all of it. Come to the ceremony, come to the celebration, or come to both. Whichever you choose, we are glad you are coming.</p>
       </div>
 
       <div class="step">
@@ -788,6 +826,22 @@ section{ position: relative; scroll-margin-top: 76px }
     </div>
   </div>
 </section>
+
+<div class="gatepop" id="codeGate" hidden role="dialog" aria-modal="true" aria-labelledby="codeGateTitle">
+  <div class="gatepop-scrim" aria-hidden="true"></div>
+  <div class="gatepop-card">
+    <p class="eyebrow">Kevin &amp; Adamar</p>
+    <h3 id="codeGateTitle">Saturday the fourteenth of November</h3>
+    <p>Your invitation has a six character code on it. Enter it and we will have your seats ready.</p>
+    <div class="code-field">
+      <label for="entryCode" class="sr">Invitation code</label>
+      <input id="entryCode" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="6" placeholder="······">
+    </div>
+    <p class="msg" id="entryMsg" role="status"></p>
+    <button class="btn solid" type="button" id="entryGo">Continue</button>
+    <button class="linky" type="button" id="entrySkip">I do not have it with me</button>
+  </div>
+</div>
 
 <div class="pop" id="pop" hidden role="dialog" aria-modal="false" aria-labelledby="popTitle">
   <div class="pop-scrim" aria-hidden="true"></div>
@@ -1271,6 +1325,91 @@ section{ position: relative; scroll-margin-top: 76px }
     $('#partyMsg').textContent = '';
     $('#partyMsg').className = 'msg';
   }
+
+  // ── the code is asked for on arrival ────────────────────────────────────
+  var REMEMBER = 'rsvp:known';
+  function remembered(){
+    try { return JSON.parse(localStorage.getItem(REMEMBER) || 'null') } catch (e) { return null }
+  }
+  function remember(code, seats){
+    try { localStorage.setItem(REMEMBER, JSON.stringify({ code: code, seats: seats })) } catch (e) {}
+  }
+  function skippedEntry(){
+    try { return sessionStorage.getItem('rsvp:skipped') === '1' } catch (e) { return false }
+  }
+  function markSkipped(){
+    try { sessionStorage.setItem('rsvp:skipped', '1') } catch (e) {}
+  }
+
+  var codeGate = $('#codeGate'), entryCode = $('#entryCode'), entryMsg = $('#entryMsg');
+
+  function closeEntry(){
+    codeGate.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function armFromKnown(known){
+    buildParty(known.code, known.seats);
+    show(stageParty);
+    $('#inlineNote').hidden = false;
+    // they gave the code on the way in, so stop telling them to find it
+    $('#rsvpLede').textContent = 'Tell us who is coming, and to which part of the day.';
+  }
+
+  function submitEntry(){
+    // Start the song here, inside the gesture, or the browser will refuse it.
+    if (!playing) playTrack().then(function(ok){ if (ok) disarm() });
+
+    var code = entryCode.value.trim().toUpperCase();
+    if (!code){
+      entryMsg.textContent = 'Enter the code from your invitation.';
+      entryMsg.className = 'msg err';
+      return;
+    }
+    var go = $('#entryGo');
+    busy(go, true, 'Checking');
+    entryMsg.textContent = ''; entryMsg.className = 'msg';
+
+    lookupCode(code).then(function(res){
+      busy(go, false, 'Continue');
+      if (!res || !res.ok){
+        entryMsg.textContent = 'We cannot find that code. Check your invitation, or carry on without it.';
+        entryMsg.className = 'msg err';
+        return;
+      }
+      remember(code, res.seats);
+      armFromKnown({ code: code, seats: res.seats });
+      closeEntry();
+    }).catch(function(){
+      busy(go, false, 'Continue');
+      entryMsg.textContent = 'We could not reach our guest list just now. Carry on, and you can enter it further down.';
+      entryMsg.className = 'msg err';
+    });
+  }
+
+  $('#entryGo').addEventListener('click', submitEntry);
+  entryCode.addEventListener('keydown', function(e){ if (e.key === 'Enter') submitEntry() });
+  entryCode.addEventListener('input', function(){
+    entryCode.value = entryCode.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    entryMsg.textContent = ''; entryMsg.className = 'msg';
+  });
+  $('#entrySkip').addEventListener('click', function(){
+    if (!playing) playTrack().then(function(ok){ if (ok) disarm() });
+    markSkipped();
+    closeEntry();
+  });
+
+  (function startEntry(){
+    var known = remembered();
+    if (known && known.code && known.seats){
+      armFromKnown(known);
+      return;                       // they have been here before
+    }
+    if (skippedEntry()) return;
+    codeGate.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ try { entryCode.focus({ preventScroll: true }) } catch (e) {} }, 400);
+  })();
 
   function openGate(){
     closePop();
