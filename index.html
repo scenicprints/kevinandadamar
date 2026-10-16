@@ -422,7 +422,13 @@ section{ position: relative; scroll-margin-top: 76px }
 }
 @keyframes cueSlide{ 0%{ transform: translateX(-8px); opacity:.3 } 50%{ transform:none; opacity:1 } 100%{ transform: translateX(8px); opacity:.3 } }
 
-.guest{ padding-block:24px; border-bottom:1px solid var(--line-soft) }
+.step{ padding-block: 26px; border-top:1px solid var(--line-soft) }
+.step > .eyebrow{ margin-bottom:18px }
+.hint{ color: var(--bone-dim); margin-bottom:20px; max-width:46ch }
+#missYou{ padding-block: 26px; border-top:1px solid var(--line-soft); margin-bottom:0 }
+
+.guest{ padding-block:20px; border-top:1px solid var(--line-soft) }
+.guest:first-child{ border-top:0; padding-top:0 }
 .events{ display:flex; flex-direction:column; gap:12px }
 .event-row{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; justify-content:space-between }
 .event-label{ font-size: var(--t-xs); letter-spacing:.22em; text-transform:uppercase; color: var(--bone-dim) }
@@ -713,10 +719,37 @@ section{ position: relative; scroll-margin-top: 76px }
 
     <div class="panel" id="stageParty" hidden>
       <div class="party-head">
-        <h3 id="partyName">The party</h3>
+        <h3 id="partyName">Your invitation</h3>
         <span class="seats" id="partySeats">0 seats held</span>
       </div>
-      <div id="guestList"></div>
+
+      <div class="step">
+        <p class="eyebrow q">Which will you be at?</p>
+        <div class="events" id="partyEvents">
+          <div class="event-row" data-event="ceremony">
+            <span class="event-label">The ceremony</span>
+            <div class="seg">
+              <button type="button" class="yes" aria-pressed="false">Attending</button>
+              <button type="button" class="no" aria-pressed="false">Can&#39;t make it</button>
+            </div>
+          </div>
+          <div class="event-row" data-event="celebration">
+            <span class="event-label">The celebration</span>
+            <div class="seg">
+              <button type="button" class="yes" aria-pressed="false">Attending</button>
+              <button type="button" class="no" aria-pressed="false">Can&#39;t make it</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="whoBlock" hidden>
+        <p class="eyebrow q">Who is coming</p>
+        <p class="hint" id="whoHint"></p>
+        <div id="guestList"></div>
+      </div>
+
+      <p class="hint" id="missYou" hidden>We are sorry to miss you. Send it anyway so we know.</p>
       <div class="extras">
         <div class="field">
           <label for="noteInput">A note for us</label>
@@ -1064,80 +1097,6 @@ section{ position: relative; scroll-margin-top: 76px }
 
   function show(stage){ [stageGate, stageParty, stageDone].forEach(function(s){ s.hidden = s !== stage }) }
 
-  function buildParty(code, seats){
-    var saved = store(code) || null;
-    current = code;
-    currentSeats = seats;
-
-    $('#partyName').textContent = 'Your invitation';
-    $('#partySeats').textContent = seats === 1
-      ? 'One seat held'
-      : seatWord(seats) + ' seats held';
-
-    var list = $('#guestList');
-    list.innerHTML = '';
-
-    for (var i = 0; i < seats; i++){
-      var prev = saved && saved.guests && saved.guests[i] ? saved.guests[i] : null;
-      var row = document.createElement('div');
-      row.className = 'guest';
-      row.innerHTML =
-        '<p class="guest-seat">Guest ' + (i + 1) + ' of ' + seats + '</p>' +
-        '<div class="guest-names">' +
-          '<div class="name-field">' +
-            '<label for="first' + i + '">First name</label>' +
-            '<input class="name-in" id="first' + i + '" type="text" autocomplete="off" placeholder="Given name">' +
-          '</div>' +
-          '<div class="name-field">' +
-            '<label for="last' + i + '">Last name</label>' +
-            '<input class="name-in" id="last' + i + '" type="text" autocomplete="off" placeholder="Family name">' +
-          '</div>' +
-        '</div>' +
-        '<div class="events">' +
-          '<div class="event-row" data-event="ceremony">' +
-            '<span class="event-label">The ceremony</span>' +
-            '<div class="seg">' +
-              '<button type="button" class="yes" aria-pressed="false">Attending</button>' +
-              '<button type="button" class="no" aria-pressed="false">Can\'t make it</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="event-row" data-event="celebration">' +
-            '<span class="event-label">The celebration</span>' +
-            '<div class="seg">' +
-              '<button type="button" class="yes" aria-pressed="false">Attending</button>' +
-              '<button type="button" class="no" aria-pressed="false">Can\'t make it</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-
-      $$('.event-row', row).forEach(function(er){
-        var yes = $('.yes', er), no = $('.no', er);
-        function set(v){
-          er.dataset.answer = v;
-          yes.setAttribute('aria-pressed', v === 'yes' ? 'true' : 'false');
-          no.setAttribute('aria-pressed', v === 'no' ? 'true' : 'false');
-        }
-        yes.addEventListener('click', function(){ set('yes') });
-        no.addEventListener('click',  function(){ set('no')  });
-        er._set = set;
-      });
-
-      if (prev){
-        $$('.event-row', row).forEach(function(er){
-          var v = prev[er.getAttribute('data-event')];
-          if (v) er._set(v);
-        });
-        if (prev.first) $('#first' + i, row).value = prev.first;
-        if (prev.last)  $('#last' + i, row).value = prev.last;
-      }
-      list.appendChild(row);
-    }
-
-    $('#noteInput').value = saved && saved.note ? saved.note : '';
-    $('#partyMsg').textContent = '';
-    $('#partyMsg').className = 'msg';
-  }
-
   // The popup sits over everything. While it is up the page is held still and
   // the scroll gesture moves only the popup, so the form underneath stays
   // exactly where it was put and is waiting in place when the popup clears.
@@ -1203,6 +1162,90 @@ section{ position: relative; scroll-margin-top: 76px }
     pop.hidden = true;
   }
 
+  function eventRow(key){ return $('#partyEvents .event-row[data-event="' + key + '"]') }
+  function eventAnswer(key){ var er = eventRow(key); return er ? (er.dataset.answer || '') : '' }
+  function comingAtAll(){ return eventAnswer('ceremony') === 'yes' || eventAnswer('celebration') === 'yes' }
+
+  function setEvent(key, v){
+    var er = eventRow(key);
+    if (!er) return;
+    er.dataset.answer = v;
+    $('.yes', er).setAttribute('aria-pressed', v === 'yes' ? 'true' : 'false');
+    $('.no', er).setAttribute('aria-pressed', v === 'no' ? 'true' : 'false');
+    reflectAttendance();
+  }
+
+  // The names only matter once somebody is actually coming.
+  function reflectAttendance(){
+    var answeredBoth = eventAnswer('ceremony') && eventAnswer('celebration');
+    var coming = comingAtAll();
+    $('#whoBlock').hidden = !coming;
+    $('#missYou').hidden = !(answeredBoth && !coming);
+  }
+
+  $$('#partyEvents .event-row').forEach(function(er){
+    var key = er.getAttribute('data-event');
+    $('.yes', er).addEventListener('click', function(){ setEvent(key, 'yes') });
+    $('.no', er).addEventListener('click',  function(){ setEvent(key, 'no')  });
+  });
+
+  function buildParty(code, seats){
+    var saved = store(code) || null;
+    current = code;
+    currentSeats = seats;
+
+    $('#partyName').textContent = 'Your invitation';
+    $('#partySeats').textContent = seats === 1
+      ? 'One seat held'
+      : seatWord(seats) + ' seats held';
+
+    $('#whoHint').textContent = seats === 1
+      ? 'One seat is held for you.'
+      : seatWord(seats).toLowerCase() === 'two'
+        ? 'Two seats are held for you. Fill in only the people who are coming.'
+        : seatWord(seats) + ' seats are held for you. Fill in only the people who are coming, and leave the rest blank.';
+
+    var list = $('#guestList');
+    list.innerHTML = '';
+    for (var i = 0; i < seats; i++){
+      var prev = saved && saved.guests && saved.guests[i] ? saved.guests[i] : null;
+      var row = document.createElement('div');
+      row.className = 'guest';
+      row.innerHTML =
+        '<p class="guest-seat">Guest ' + (i + 1) + (i === 0 ? '' : ' <span style="text-transform:none;letter-spacing:.06em">(if coming)</span>') + '</p>' +
+        '<div class="guest-names">' +
+          '<div class="name-field">' +
+            '<label for="first' + i + '">First name</label>' +
+            '<input class="name-in" id="first' + i + '" type="text" autocomplete="off" placeholder="Given name">' +
+          '</div>' +
+          '<div class="name-field">' +
+            '<label for="last' + i + '">Last name</label>' +
+            '<input class="name-in" id="last' + i + '" type="text" autocomplete="off" placeholder="Family name">' +
+          '</div>' +
+        '</div>';
+      if (prev){
+        if (prev.first) $('#first' + i, row).value = prev.first;
+        if (prev.last)  $('#last' + i, row).value = prev.last;
+      }
+      list.appendChild(row);
+    }
+
+    setEvent('ceremony', saved && saved.ceremony ? saved.ceremony : '');
+    setEvent('celebration', saved && saved.celebration ? saved.celebration : '');
+    if (!saved){
+      $$('#partyEvents .event-row').forEach(function(er){
+        er.dataset.answer = '';
+        $('.yes', er).setAttribute('aria-pressed', 'false');
+        $('.no', er).setAttribute('aria-pressed', 'false');
+      });
+      reflectAttendance();
+    }
+
+    $('#noteInput').value = saved && saved.note ? saved.note : '';
+    $('#partyMsg').textContent = '';
+    $('#partyMsg').className = 'msg';
+  }
+
   function openGate(){
     closePop();
     show(stageGate);
@@ -1250,49 +1293,55 @@ section{ position: relative; scroll-margin-top: 76px }
   $('#partySend').addEventListener('click', function(){
     var rows = $$('#guestList .guest');
 
-    function answerFor(r, key){
-      var er = $('.event-row[data-event="' + key + '"]', r);
-      return er ? (er.dataset.answer || '') : '';
-    }
     function firstOf(r){ return $('.name-in', r).value.trim() }
     function lastOf(r){ return $$('.name-in', r)[1].value.trim() }
-    function comingAtAll(r){
-      return answerFor(r, 'ceremony') === 'yes' || answerFor(r, 'celebration') === 'yes';
-    }
 
-    var unanswered = rows.filter(function(r){
-      return !answerFor(r, 'ceremony') || !answerFor(r, 'celebration');
-    });
-    if (unanswered.length){
-      $('#partyMsg').textContent = 'Please answer for both the ceremony and the celebration, for every seat.';
+    var ceremony = eventAnswer('ceremony');
+    var celebration = eventAnswer('celebration');
+
+    if (!ceremony || !celebration){
+      $('#partyMsg').textContent = 'Please answer for both the ceremony and the celebration.';
       $('#partyMsg').className = 'msg err';
-      unanswered[0].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      $('#partyEvents').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
       return;
     }
 
-    var unnamed = rows.filter(function(r){
-      return comingAtAll(r) && (!firstOf(r) || !lastOf(r));
+    // A seat with only half a name is a slip, not a choice.
+    var halfNamed = rows.filter(function(r){
+      var f = firstOf(r), l = lastOf(r);
+      return (f && !l) || (l && !f);
     });
-    if (unnamed.length){
-      $('#partyMsg').textContent = 'Please give a first and last name for everyone coming.';
+    if (halfNamed.length){
+      $('#partyMsg').textContent = 'Please give both a first and a last name for everyone you have listed.';
       $('#partyMsg').className = 'msg err';
-      unnamed[0].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-      $('.name-in', unnamed[0]).focus({ preventScroll: true });
+      halfNamed[0].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
       return;
     }
+
+    var named = rows.filter(function(r){ return firstOf(r) && lastOf(r) });
+
+    if (comingAtAll() && !named.length){
+      $('#partyMsg').textContent = 'Please tell us who is coming.';
+      $('#partyMsg').className = 'msg err';
+      $('#whoBlock').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      $('.name-in', rows[0]).focus({ preventScroll: true });
+      return;
+    }
+
+    // Everyone listed is coming to whatever the party chose. A party that is
+    // not coming still sends one row, so the sheet records the decline.
+    var people = named.length ? named.map(function(r){
+      return { first: firstOf(r), last: lastOf(r), ceremony: ceremony, celebration: celebration };
+    }) : [{ first: '', last: '', ceremony: ceremony, celebration: celebration }];
 
     var payload = {
       code: current,
       note: $('#noteInput').value.trim(),
-      guests: rows.map(function(r){
-        return {
-          first: firstOf(r),
-          last: lastOf(r),
-          ceremony: answerFor(r, 'ceremony'),
-          celebration: answerFor(r, 'celebration')
-        };
-      })
+      ceremony: ceremony,
+      celebration: celebration,
+      guests: people
     };
+
     var sendBtn = $('#partySend');
     busy(sendBtn, true, 'Sending');
     $('#partyMsg').textContent = ''; $('#partyMsg').className = 'msg';
@@ -1307,27 +1356,36 @@ section{ position: relative; scroll-margin-top: 76px }
       store(current, payload);
       closePop();
       finish(payload);
-    }).catch(function(){
+    }).catch(function(err){
+      // Distinguish a genuine network failure from a fault in our own handler,
+      // otherwise a broken page tells the guest their connection is down.
+      var offline = (err && err.name === 'TypeError') || !navigator.onLine;
+      if (!offline && window.console) console.error('RSVP send failed after the reply came back:', err);
       busy(sendBtn, false, 'Send our answer');
       store(current, payload);
-      $('#partyMsg').textContent = 'We could not reach us just now. Your answers are kept on this device, so try again in a moment.';
+      $('#partyMsg').textContent = offline
+        ? 'We could not reach us just now. Your answers are kept on this device, so try again in a moment.'
+        : 'Something went wrong at our end. Your answers are kept on this device. Please try again, or write to us at the bottom of the page.';
       $('#partyMsg').className = 'msg err';
     });
   });
 
   function finish(payload){
-    var ceremony = payload.guests.filter(function(g){ return g.ceremony === 'yes' }).length;
-    var celebration = payload.guests.filter(function(g){ return g.celebration === 'yes' }).length;
-    var away = payload.guests.filter(function(g){
-      return g.ceremony !== 'yes' && g.celebration !== 'yes';
-    }).length;
+    var coming = payload.guests.filter(function(g){ return g.first || g.last }).length;
+    var atCeremony = payload.ceremony === 'yes';
+    var atCelebration = payload.celebration === 'yes';
 
-    $('#doneTitle').textContent = (ceremony || celebration) ? 'You are on the list' : 'We will miss you';
+    $('#doneTitle').textContent = (atCeremony || atCelebration) ? 'You are on the list' : 'We will miss you';
+
+    var where = atCeremony && atCelebration ? 'at the ceremony and the celebration'
+              : atCeremony ? 'at the ceremony'
+              : atCelebration ? 'at the celebration'
+              : '';
 
     var bits = [];
-    if (ceremony)    bits.push('<b>' + ceremony + '</b> at the ceremony');
-    if (celebration) bits.push('<b>' + celebration + '</b> at the celebration');
-    if (away)        bits.push('<b>' + away + '</b> unable to come');
+    if (coming) bits.push('<b>' + coming + '</b>' + (coming === 1 ? ' of you' : ' of you'));
+    if (where) bits.push(where);
+    if (!where) bits.push('Thank you for letting us know');
     $('#doneTally').innerHTML = bits.join(' &nbsp;·&nbsp; ');
 
     show(stageDone);
