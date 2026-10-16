@@ -7,7 +7,7 @@
  *   Who has access: Anyone
  *
  * GET  ?code=ABC123   -> {ok:true, seats:n} | {ok:false}
- * POST {code, note, guests:[{first,last,ceremony,celebration}]}
+ * POST {code, note, ceremony, celebration, guests:[{first,last,...}]}
  *
  * The POST is sent as text/plain on purpose. Apps Script does not answer CORS
  * preflight requests, and a JSON content type would trigger one.
@@ -15,12 +15,14 @@
 
 var INVITATIONS = 'Invitations';
 var REPLIES = 'Replies';
+var LOOKUPS = 'Lookups';
 
 function doGet(e) {
   var code = normalise((e && e.parameter && e.parameter.code) || '');
   if (!code) return json({ ok: false, error: 'no code' });
 
   var seats = seatsFor(code);
+  logLookup(code, seats !== null);
   return seats === null ? json({ ok: false }) : json({ ok: true, seats: seats });
 }
 
@@ -70,6 +72,21 @@ function doPost(e) {
   }
 
   return json({ ok: true });
+}
+
+/**
+ * Every code entry, so you can tell who has opened their invitation from who
+ * has never looked. Failures are logged too: a run of them against one code
+ * usually means it was mistyped or misprinted.
+ */
+function logLookup(code, found) {
+  try {
+    var sheet = SpreadsheetApp.getActive().getSheetByName(LOOKUPS);
+    if (!sheet) return;
+    sheet.appendRow([new Date(), code, found ? 'Yes' : 'No']);
+  } catch (err) {
+    // Never let the log stop a guest getting their seats.
+  }
 }
 
 function seatsFor(code) {
