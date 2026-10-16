@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Kevin and Adamar are marrying at Saint Joseph's Church in Modesto on Saturday the fourteenth of November, 2026.">
-<meta name="theme-color" content="#08080E">
+<meta name="theme-color" content="#101016">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Kevin &amp; Adamar">
 <meta property="og:description" content="Kevin and Adamar are marrying at Saint Joseph's Church in Modesto on Saturday the fourteenth of November, 2026.">
@@ -41,17 +41,17 @@
   color-scheme: dark;
 
   /* colour, drawn from the photographs */
-  --ink:       #08080E;   /* ground, blue-black */
-  --ink-2:     #101019;   /* raised surface */
-  --ink-3:     #181824;   /* hover surface */
+  --ink:       #101016;   /* ground, blue-black */
+  --ink-2:     #1A1A24;   /* raised surface */
+  --ink-3:     #24242F;   /* hover surface */
   --bone:      #F1EEE7;   /* primary text */
-  --bone-dim:  #9896A8;   /* secondary text, iris-biased grey */
+  --bone-dim:  #BDBACB;   /* secondary text, iris-biased grey */
   --iris:      #8E8AE6;   /* accent: interactive + key moments */
   --iris-deep: #4B46B8;   /* accent fill */
   --leaf:      #2B3A2C;   /* ambient, from the trees */
-  --panel:     rgba(16,16,25,.66); /* RSVP panel, --ink-2 at two thirds */
-  --line:      rgba(241,238,231,.14);
-  --line-soft: rgba(241,238,231,.07);
+  --panel:     rgba(26,26,36,.66); /* RSVP panel, --ink-2 at two thirds */
+  --line:      rgba(241,238,231,.2);
+  --line-soft: rgba(241,238,231,.12);
 
   /* type */
   --display: "Bodoni Moda", Didot, "Times New Roman", serif;
@@ -62,7 +62,7 @@
   --t-xl:   clamp(2.1rem, 6vw, 4.2rem);
   --t-lg:   clamp(1.5rem, 3.2vw, 2.3rem);
   --t-md:   clamp(1.02rem, 1.6vw, 1.26rem);
-  --t-sm:   .9375rem;
+  --t-sm:   1rem;
   --t-xs:   .6875rem;
 
   --gutter: 20px;
@@ -77,9 +77,9 @@ body{
   background: var(--ink);
   color: var(--bone);
   font-family: var(--sans);
-  font-weight: 300;
+  font-weight: 400;
   font-size: var(--t-sm);
-  line-height: 1.65;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -132,7 +132,7 @@ section{ position: relative; scroll-margin-top: 76px }
   position: fixed; left:0; right:0; top:0; z-index:50;
   display:flex; align-items:center; gap:24px;
   padding: 14px var(--gutter); padding-top: calc(14px + env(safe-area-inset-top, 0px));
-  background: rgba(8,8,14,.74); backdrop-filter: blur(14px) saturate(130%);
+  background: rgba(16,16,22,.74); backdrop-filter: blur(14px) saturate(130%);
   border-bottom: 1px solid var(--line-soft);
   transform: translateY(-102%); transition: transform .6s var(--ease);
 }
@@ -152,10 +152,10 @@ section{ position: relative; scroll-margin-top: 76px }
   text-decoration:none; white-space:nowrap;
   transition: background .4s var(--ease), color .4s var(--ease), transform .3s var(--ease), border-color .4s;
 }
-.btn:hover{ background: var(--iris); color: #08080E }
+.btn:hover{ background: var(--iris); color: #101016 }
 .btn:active{ transform: scale(.98) }
 .btn.sm{ padding: 10px 20px }
-.btn.solid{ background: var(--iris); color:#08080E }
+.btn.solid{ background: var(--iris); color:#101016 }
 .btn.solid:hover{ background: var(--bone); border-color: var(--bone) }
 .btn.ghost{ border-color: var(--line); color: var(--bone-dim) }
 .btn.ghost:hover{ background: var(--ink-3); border-color: var(--bone-dim); color: var(--bone) }
@@ -167,7 +167,7 @@ section{ position: relative; scroll-margin-top: 76px }
   bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px));
   display:flex; align-items:center; gap:11px;
   padding: 11px 17px 11px 14px;
-  background: rgba(8,8,14,.82); backdrop-filter: blur(14px);
+  background: rgba(16,16,22,.82); backdrop-filter: blur(14px);
   border:1px solid var(--line); border-radius:999px;
   font-size: var(--t-xs); letter-spacing:.18em; text-transform:uppercase;
   color: var(--bone-dim); transition: border-color .4s, color .4s;
@@ -195,24 +195,25 @@ section{ position: relative; scroll-margin-top: 76px }
   text-align:center;
 }
 .hero-photo{ position:absolute; inset:0; z-index:-2 }
-.hero-photo img{ width:100%; height:100%; object-fit:cover; opacity:.46 }
+.hero-photo img{ width:100%; height:100%; object-fit:cover; opacity:.55 }
 .hero-photo::after{
   content:''; position:absolute; inset:0;
   background:
-    radial-gradient(70% 60% at 50% 46%, rgba(8,8,14,.5), rgba(8,8,14,.9) 78%),
-    linear-gradient(to bottom, rgba(8,8,14,.88), rgba(8,8,14,.38) 42%, var(--ink) 97%);
+    radial-gradient(74% 62% at 50% 44%, rgba(16,16,22,.62), rgba(16,16,22,.82) 80%),
+    linear-gradient(to bottom, rgba(16,16,22,.72), rgba(16,16,22,.24) 42%, var(--ink) 97%);
 }
 .hero-inner{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; width:100% }
 .hero-names{
   font-size: var(--t-mega); line-height:.9; letter-spacing:-.03em;
   display:flex; flex-direction:column; align-items:center;
   margin-block: clamp(1.1rem, 3vh, 2rem);
-  text-shadow: 0 2px 50px rgba(8,8,14,.8);
+  text-shadow: 0 1px 3px rgba(16,16,22,.9), 0 6px 28px rgba(16,16,22,.85), 0 0 70px rgba(16,16,22,.75);
 }
 .hero-names .amp{ font-style:italic; color: var(--iris); font-size:.6em; line-height:1; margin-block:-.05em }
 .hero-date{
   display:flex; flex-wrap:wrap; gap:9px 18px; justify-content:center;
-  font-size: var(--t-xs); letter-spacing:.28em; text-transform:uppercase; color: var(--bone-dim);
+  font-size: var(--t-xs); letter-spacing:.28em; text-transform:uppercase; color: var(--bone);
+  text-shadow: 0 1px 3px rgba(16,16,22,.95), 0 3px 18px rgba(16,16,22,.9);
 }
 .hero-date b{ font-weight:400; color: var(--bone) }
 .hero-date .sep{ color: var(--iris) }
@@ -232,7 +233,7 @@ section{ position: relative; scroll-margin-top: 76px }
 
 /* ── countdown ─────────────────────────────────────────────── */
 
-.count{ border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); position:relative; z-index:3; background: rgba(8,8,14,.55) }
+.count{ border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); position:relative; z-index:3; background: rgba(16,16,22,.55) }
 .count-grid{ display:grid; grid-template-columns: repeat(4,1fr); padding-block: clamp(1.5rem,4vh,2.5rem) }
 .count-cell{ text-align:center; position:relative }
 .count-cell + .count-cell::before{ content:''; position:absolute; left:0; top:14%; bottom:14%; width:1px; background: var(--line-soft) }
@@ -247,8 +248,8 @@ section{ position: relative; scroll-margin-top: 76px }
 
 .seq-wash{ position:absolute; inset:0; z-index:0 }
 .seq-wash .sq{ position:absolute; inset:-10%; opacity:0; will-change: opacity }
-.seq-wash img{ width:100%; height:100%; object-fit:cover; filter: blur(22px) saturate(135%); opacity:.42; transform: translateZ(0) }
-.seq-wash::after{ content:''; position:absolute; inset:0; background: radial-gradient(60% 55% at 50% 50%, transparent, rgba(8,8,14,.74)) }
+.seq-wash img{ width:100%; height:100%; object-fit:cover; filter: blur(22px) saturate(135%); opacity:.5; transform: translateZ(0) }
+.seq-wash::after{ content:''; position:absolute; inset:0; background: radial-gradient(60% 55% at 50% 50%, transparent, rgba(16,16,22,.74)) }
 
 .seq-inner{
   position:relative; z-index:1; width:100%; max-width: var(--maxw);
@@ -316,7 +317,7 @@ section{ position: relative; scroll-margin-top: 76px }
 @keyframes slideL{ to{ transform: translateX(-50%) } }
 @keyframes slideR{ from{ transform: translateX(-50%) } to{ transform:none } }
 .marq-cell{ position:relative; flex:0 0 auto; width: clamp(150px, 22vw, 270px); aspect-ratio:4/5; overflow:hidden; border:1px solid var(--line-soft) }
-.marq-cell img{ width:100%; height:100%; object-fit:cover; opacity:.84; transition: opacity .5s var(--ease), transform .8s var(--ease) }
+.marq-cell img{ width:100%; height:100%; object-fit:cover; opacity:.96; transition: opacity .5s var(--ease), transform .8s var(--ease) }
 .marq-cell:hover img{ opacity:1; transform: scale(1.04) }
 
 /* ── details ───────────────────────────────────────────────── */
@@ -376,7 +377,7 @@ section{ position: relative; scroll-margin-top: 76px }
   font-size: clamp(1.6rem,5.6vw,2.3rem); letter-spacing:.34em;
   text-align:center; text-transform:uppercase; padding:14px 0 16px; transition: border-color .4s;
 }
-.code-field input::placeholder{ color: rgba(152,150,168,.34); letter-spacing:.34em }
+.code-field input::placeholder{ color: rgba(189,186,203,.34); letter-spacing:.34em }
 .code-field input:focus{ outline:none; border-color: var(--iris) }
 .msg{ font-size: var(--t-sm); min-height:1.4em }
 .msg.err{ color:#E08A9A }
@@ -397,14 +398,14 @@ section{ position: relative; scroll-margin-top: 76px }
 .pop[hidden]{ display: none }
 .pop-scrim{
   position: absolute; inset: -50vh 0;
-  background: rgba(8,8,14,.78);
+  background: rgba(16,16,22,.78);
   backdrop-filter: blur(7px);
 }
 .pop-card{
   position: relative; z-index: 1; pointer-events: auto;
   width: min(540px, 100%);
   border: 1px solid rgba(142,138,230,.36);
-  background: linear-gradient(rgba(30,27,66,.98), rgba(16,16,25,.98));
+  background: linear-gradient(rgba(30,27,66,.98), rgba(26,26,36,.98));
   box-shadow: 0 44px 110px rgba(0,0,0,.72);
   padding: clamp(1.8rem,5.5vw,2.8rem);
   display: flex; flex-direction: column; gap: 14px;
@@ -435,14 +436,14 @@ section{ position: relative; scroll-margin-top: 76px }
   font-family: var(--display); font-size: var(--t-lg); padding: 2px 0 8px;
   transition: border-color .35s;
 }
-.name-in::placeholder{ color: rgba(152,150,168,.4); font-style: italic; font-size:.8em }
+.name-in::placeholder{ color: rgba(189,186,203,.4); font-style: italic; font-size:.8em }
 .name-in:focus{ outline:none; border-color: var(--iris) }
 .guest-top{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:flex-start }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap }
 .seg{ display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; flex:0 0 auto }
 .seg button{ padding:9px 17px; font-size:var(--t-xs); letter-spacing:.14em; text-transform:uppercase; color:var(--bone-dim); transition: background .35s, color .35s }
 .seg button:hover{ color: var(--bone) }
-.seg button[aria-pressed="true"]{ background: var(--iris); color:#08080E }
+.seg button[aria-pressed="true"]{ background: var(--iris); color:#101016 }
 .seg button.no[aria-pressed="true"]{ background: var(--ink-3); color: var(--bone) }
 
 
@@ -610,7 +611,7 @@ section{ position: relative; scroll-margin-top: 76px }
     <div class="invite-copy">
       <p class="eyebrow r">The invitation</p>
       <h2 class="r" style="--d:.08s">We ask you to join us as we marry again, this time <em>in the church</em>.</h2>
-      <p class="lede r" style="--d:.16s">The ceremony begins at twelve o'clock. We will share the rest of the day as soon as it is settled.</p>
+      <p class="lede r" style="--d:.16s">The ceremony begins at twelve o'clock, and the celebration at four.</p>
       <p class="lede r" style="--d:.24s">We are grateful to everyone who has carried us this far. On the fourteenth we are asking for your blessing as we make our marriage holy, and we would be glad to have you with us for it.</p>
     </div>
   </div>
@@ -678,7 +679,7 @@ section{ position: relative; scroll-margin-top: 76px }
       <div class="note r">
         <p class="eyebrow">What to wear</p>
         <h3>Semi formal</h3>
-        <p>We would love to see everyone dressed for the church. However you arrive, we are glad you came.</p>
+        <p>We would love to see everyone dressed for the church. The celebration afterwards is outdoors and November evenings turn cold, so bring a jacket.</p>
       </div>
       <div class="note r" style="--d:.07s">
         <p class="eyebrow">Your family</p>
@@ -943,8 +944,8 @@ section{ position: relative; scroll-margin-top: 76px }
   /* ── music ──────────────────────────────────────────────── */
   var audio = $('#track');
   var musicBtn = $('#music'), musicLbl = $('#musicLbl');
-  var FULL = 0.5, fadeTimer = null, playing = false, refused = false;
-  var GESTURES = ['pointerdown','touchstart','keydown','wheel','scroll'];
+  var FULL = 0.5, fadeTimer = null, playing = false, refused = false, userChoseSilence = false;
+  var GESTURES = ['pointerdown','mousedown','click','touchstart','touchend','keydown','wheel','scroll'];
 
   audio.volume = 0;
   // if a viewer carries the element over a republish, start from silence
@@ -991,8 +992,9 @@ section{ position: relative; scroll-margin-top: 76px }
   // track and then immediately be read as a request to stop it.
   function onFirstGesture(e){
     if (e && e.target && e.target.closest && e.target.closest('#music')) return;
-    disarm();
-    playTrack();
+    // Stay armed until it genuinely starts. Some browsers, Brave among them,
+    // refuse the first attempt even with a gesture behind it.
+    playTrack().then(function(ok){ if (ok) disarm() });
   }
   function arm(){
     GESTURES.forEach(function(n){ window.addEventListener(n, onFirstGesture, { passive: true, capture: true }) });
@@ -1002,8 +1004,14 @@ section{ position: relative; scroll-margin-top: 76px }
   }
 
   musicBtn.addEventListener('click', function(){
-    disarm();
-    if (playing) pauseTrack(); else playTrack();
+    if (playing){
+      userChoseSilence = true;
+      disarm();
+      pauseTrack();
+    } else {
+      userChoseSilence = false;
+      playTrack().then(function(ok){ if (ok) disarm() });
+    }
   });
 
   // Autostart is on: the song begins on its own, or on the first touch of the
@@ -1011,6 +1019,14 @@ section{ position: relative; scroll-margin-top: 76px }
   var AUTOSTART = true;
   if (AUTOSTART && !reduce){
     playTrack().then(function(ok){ if (!ok) arm() });
+    // a second unprompted attempt once the file is genuinely ready; the first
+    // one can fail simply because nothing has loaded yet
+    audio.addEventListener('canplaythrough', function once(){
+      audio.removeEventListener('canplaythrough', once);
+      if (audio.paused && !userChoseSilence){
+        playTrack().then(function(ok){ if (ok) disarm() });
+      }
+    });
   }
 
   /* ── rsvp ───────────────────────────────────────────────── */
