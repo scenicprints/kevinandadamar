@@ -978,7 +978,13 @@ section{ position: relative; scroll-margin-top: 76px }
   var audio = $('#track');
   var musicBtn = $('#music'), musicLbl = $('#musicLbl');
   var FULL = 0.5, fadeTimer = null, playing = false, refused = false, userChoseSilence = false;
-  var GESTURES = ['pointerdown','mousedown','click','touchstart','touchend','keydown','wheel','scroll'];
+  // Only some events grant a browser's "user activation", which is what
+  // unlocks audio: clicks, mouse and pointer presses, key presses and the END
+  // of a touch. Wheel and scroll never do, so a guest who only scrolls on a
+  // desktop will not hear it until they click something. On a phone the
+  // touchend that finishes a swipe does count, so swiping is enough there.
+  var GESTURES = ['pointerdown','pointerup','mousedown','mouseup','click',
+                  'touchstart','touchend','keydown','keyup','wheel','scroll'];
 
   audio.volume = 0;
   // if a viewer carries the element over a republish, start from silence
