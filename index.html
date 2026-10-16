@@ -998,21 +998,11 @@ section{ position: relative; scroll-margin-top: 76px }
   var GESTURES = ['pointerdown','pointerup','mousedown','mouseup','click',
                   'touchstart','touchend','keydown','keyup','wheel','scroll'];
 
-  // Add #mdebug to the address to make the pill report what the audio is
-  // actually doing on this device. Diagnostic only; guests never see it.
-  var MDEBUG = location.hash.indexOf("mdebug") >= 0;
-  function diag(msg){
-    if (!MDEBUG) return;
-    musicBtn.classList.add("needs-tap");
-    musicLbl.textContent = msg + " | rs" + audio.readyState + (audio.paused ? " paused" : " PLAYING");
-  }
-
   audio.volume = 0;
   // if a viewer carries the element over a republish, start from silence
   try { audio.pause(); audio.currentTime = 0; } catch (e) {}
 
   audio.addEventListener('error', function(){
-    diag('file error ' + (audio.error ? audio.error.code : '?'));
     refused = true;
     musicLbl.textContent = 'Music unavailable';
     musicBtn.disabled = true;
@@ -1042,8 +1032,8 @@ section{ position: relative; scroll-margin-top: 76px }
     if (refused) return Promise.resolve(false);
     var p = audio.play();
     if (!p || !p.then){ setOn(true); fadeTo(FULL, 2600, false); return Promise.resolve(true) }
-    return p.then(function(){ setOn(true); fadeTo(FULL, 2600, false); diag('play ok'); return true })
-            .catch(function(err){ diag('refused ' + (err && err.name ? err.name : '?')); return false });
+    return p.then(function(){ setOn(true); fadeTo(FULL, 2600, false); return true })
+            .catch(function(){ return false });
   }
 
   function pauseTrack(){ setOn(false); fadeTo(0, 900, true) }
@@ -1056,7 +1046,6 @@ section{ position: relative; scroll-margin-top: 76px }
     if (e && e.target && e.target.closest && e.target.closest('#music')) return;
     // Stay armed until it genuinely starts. Some browsers, Brave among them,
     // refuse the first attempt even with a gesture behind it.
-    diag('got ' + e.type);
     playTrack().then(function(ok){ if (ok) disarm() });
   }
   function arm(){
