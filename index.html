@@ -507,6 +507,7 @@ section{ position: relative; scroll-margin-top: 76px }
   font-size: var(--t-xs); letter-spacing:.24em; text-transform:uppercase; color: var(--bone);
 }
 .pop-card .cue i{ display:block; width:30px; height:1px; background: var(--iris) }
+.pop-card .btn{ align-self: flex-start; margin-top: 6px }
 @media (prefers-reduced-motion: no-preference){
   .pop-card .cue i{ animation: cueSlide 2.2s var(--ease) infinite }
 }
@@ -906,6 +907,16 @@ section{ position: relative; scroll-margin-top: 76px }
   </div>
 </div>
 
+<div class="pop" id="popClosed" hidden role="dialog" aria-modal="true" aria-labelledby="popClosedTitle">
+  <div class="pop-scrim" aria-hidden="true"></div>
+  <div class="pop-card">
+    <p class="eyebrow">Replies are closed</p>
+    <h3 id="popClosedTitle">This invitation can no longer be answered.</h3>
+    <p>We are sorry, the window to reply has passed. If you still need to reach us, our email is at the bottom of the page.</p>
+    <button class="btn ghost sm" type="button" id="popClosedGo">Close</button>
+  </div>
+</div>
+
 <!-- ══ footer ════════════════════════════════════════════════ -->
 <footer class="foot wrap">
   <div class="foot-mark">The <em>Wagners</em></div>
@@ -1038,6 +1049,13 @@ section{ position: relative; scroll-margin-top: 76px }
     'Several couples are being married at the same service, so it is a long one. We do not expect anyone to sit through all of it. Come to the ceremony, come to the celebration, or come to both. Whichever you choose, we are glad you are coming.':
       'Varias parejas se casan en la misma misa, por eso es larga. No esperamos que nadie se quede todo el tiempo. Vengan a la ceremonia, vengan a la celebración, o vengan a las dos. Como sea, nos alegra que vengan.',
     'Scroll to answer': 'Desliza para responder',
+
+    // a code the owner has retired
+    'Replies are closed': 'Las respuestas están cerradas',
+    'This invitation can no longer be answered.': 'Esta invitación ya no se puede responder.',
+    'We are sorry, the window to reply has passed. If you still need to reach us, our email is at the bottom of the page.':
+      'Lo sentimos, el plazo para responder ya pasó. Si aún necesitan comunicarse con nosotros, nuestro correo está al final de la página.',
+    'Close': 'Cerrar',
 
     // the form
     'Your invitation': 'Su invitación',
@@ -1648,6 +1666,26 @@ section{ position: relative; scroll-margin-top: 76px }
     codeInput.focus({ preventScroll: true });
   }
 
+  // A code the owner has retired cannot be answered any more. The server says
+  // so, and the guest gets told rather than being handed a form that will be
+  // refused on send.
+  var popClosed = $('#popClosed');
+  function openClosed(){
+    popClosed.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeClosed(){
+    popClosed.hidden = true;
+    document.body.style.overflow = '';
+  }
+  $('#popClosedGo').addEventListener('click', closeClosed);
+  popClosed.addEventListener('click', function(e){
+    if (e.target === popClosed || e.target.classList.contains('pop-scrim')) closeClosed();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !popClosed.hidden) closeClosed();
+  });
+
   function submitCode(){
     var code = codeInput.value.trim().toUpperCase();
     if (!code){
@@ -1663,6 +1701,10 @@ section{ position: relative; scroll-margin-top: 76px }
       if (!res || !res.ok){
         gateMsg.textContent = t('We cannot find that code. Check your invitation, or write to us at the bottom of the page.');
         gateMsg.className = 'msg err';
+        return;
+      }
+      if (res.retired){
+        openClosed();
         return;
       }
       buildParty(code, res.seats);

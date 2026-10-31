@@ -6,11 +6,14 @@
  *   Execute as:     Me
  *   Who has access: Anyone
  *
- * GET  ?code=ABC123   -> {ok:true, seats:n} | {ok:false}
+ * GET  ?code=ABC123   -> {ok:true, seats:n, retired:bool} | {ok:false}
  * POST {code, note, ceremony, celebration, guests:[{first,last,...}]}
  *
  * The POST is sent as text/plain on purpose. Apps Script does not answer CORS
  * preflight requests, and a JSON content type would trigger one.
+ *
+ * Invitations has a third column, Retired. Put anything in it and that code
+ * stops taking answers: the site says so, and a send is refused.
  */
 
 var INVITATIONS = 'Invitations';
@@ -21,9 +24,10 @@ function doGet(e) {
   var code = normalise((e && e.parameter && e.parameter.code) || '');
   if (!code) return json({ ok: false, error: 'no code' });
 
-  var seats = seatsFor(code);
-  logLookup(code, seats !== null);
-  return seats === null ? json({ ok: false }) : json({ ok: true, seats: seats });
+  var inv = invitationFor(code);
+  logLookup(code, inv !== null);
+  if (!inv) return json({ ok: false });
+  return json({ ok: true, seats: inv.seats, retired: inv.retired });
 }
 
 function doPost(e) {
@@ -35,10 +39,11 @@ function doPost(e) {
   }
 
   var code = normalise(body.code || '');
-  var seats = seatsFor(code);
-  if (seats === null) return json({ ok: false, error: 'unknown code' });
+  var inv = invitationFor(code);
+  if (!inv) return json({ ok: false, error: 'unknown code' });
+  if (inv.retired) return json({ ok: false, error: 'closed' });
 
-  var guests = (body.guests || []).slice(0, seats);
+  var guests = (body.guests || []).slice(0, inv.seats);
   if (!guests.length) return json({ ok: false, error: 'no guests' });
 
   // One party answers once. A second send replaces the first rather than
@@ -89,12 +94,14 @@ function logLookup(code, found) {
   }
 }
 
-function seatsFor(code) {
+/** {seats, retired} for a live code, or null if there is no such code. */
+function invitationFor(code) {
   var rows = SpreadsheetApp.getActive().getSheetByName(INVITATIONS).getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (normalise(rows[i][0]) === code) {
       var n = Number(rows[i][1]);
-      return n > 0 ? n : null;
+      if (!(n > 0)) return null;
+      return { seats: n, retired: String(rows[i][2] == null ? '' : rows[i][2]).trim() !== '' };
     }
   }
   return null;
